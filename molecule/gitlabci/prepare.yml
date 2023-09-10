@@ -73,3 +73,13 @@
     #    #add_certificates_bundle_dest_mode: "{{ bundle.dest_mode }}"
     #  ansible.builtin.include_role:
     #    name: "labocbz.add_certificates"
+
+    - name: "Include labocbz.install_docker"
+      tags:
+        - "labocbz.install_docker"
+      vars:
+        install_docker_compose_version: "{{ inv_install_docker_compose_version }}"
+        install_docker_portainer: "{{ inv_install_docker_portainer }}"
+        install_docker_watchtower: "{{ inv_install_docker_watchtower }}"
+      ansible.builtin.include_role:
+        name: "labocbz.install_docker"
