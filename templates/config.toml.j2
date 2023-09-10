@@ -1,0 +1,36 @@
+##############################
+#                            #
+# Ansible / Tower managed on #
+#                            #
+##############################
+
+concurrent = {{ install_gitlab_runner_concurrent }}
+check_interval = {{ install_gitlab_runner_check_interval }}
+
+[session_server]
+  session_timeout = {{ install_gitlab_runner_session_timeout }}
+
+[[runners]]
+    name = "{{ install_gitlab_runner_name }}"
+    url = "{{ install_gitlab_runner_url }}"
+    token = "{{ install_gitlab_runner_token }}"
+    executor = "docker"
+    [runners.custom_build_dir]
+    [runners.cache]
+    [runners.cache.s3]
+    [runners.cache.gcs]
+    [runners.cache.azure]
+    [runners.docker]
+        tls_verify = {{ install_gitlab_runner_docker_tls_verify }}
+        image = "{{ install_gitlab_runner_docker_image }}"
+        privileged = {{ install_gitlab_runner_docker_privileged }}
+        disable_entrypoint_overwrite = false
+        oom_kill_disable = false
+        disable_cache = {{ install_gitlab_runner_docker_disable_cache }}
+        volumes = ["/cache", "/var/run/docker.sock:/var/run/docker.sock", "/sys/fs/cgroup:/sys/fs/cgroup:rw", "/var/lib/containerd"]
+        shm_size = 0
+        network_mode = "{{ install_gitlab_runner_network_mode }}"
+    [runners.docker.services_tmpfs]
+        "/run" = "rw"
+        "/run/lock" = "rw"
+        "/tmp" = "rw"
