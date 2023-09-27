@@ -10,13 +10,13 @@
     dest: "/var/lib/docker/volumes/{{ install_gitlab_runner_config_volume }}/_data/config.toml"
     owner: "root"
     group: "root"
-    mode: 0700
+    mode: "0700"
 
 - name: "Install GitLab Runner"
   community.docker.docker_container:
     name: "{{ install_gitlab_runner_name }}"
     image: "{{ install_gitlab_runner_image }}"
-    state: "present"
+    state: "started"
     recreate: false
     restart_policy: "always"
     devices:
