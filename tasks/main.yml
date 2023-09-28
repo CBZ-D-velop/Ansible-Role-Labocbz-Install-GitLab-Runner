@@ -4,14 +4,6 @@
     name: "{{ install_gitlab_runner_config_volume }}"
     state: "present"
 
-- name: "Import toml config file"
-  ansible.builtin.template:
-    src: "templates/config.toml.j2"
-    dest: "/var/lib/docker/volumes/{{ install_gitlab_runner_config_volume }}/_data/config.toml"
-    owner: "root"
-    group: "root"
-    mode: "0700"
-
 - name: "Install GitLab Runner"
   community.docker.docker_container:
     name: "{{ install_gitlab_runner_name }}"
@@ -19,6 +11,36 @@
     state: "started"
     recreate: false
     restart_policy: "always"
-    devices:
+    volumes:
       - "/var/run/docker.sock:/var/run/docker.sock"
       - "{{ install_gitlab_runner_config_volume }}:/etc/gitlab-runner"
+
+- name: "Register runner {{ install_gitlab_runner_name }}"
+  ansible.builtin.shell: >
+    docker exec -i {{ install_gitlab_runner_name }} gitlab-runner register \
+    --non-interactive \
+    --url '{{ install_gitlab_runner_url }}' \
+    --registration-token '{{ install_gitlab_runner_token }}' \
+    --executor 'docker' \
+    --docker-image '{{ install_gitlab_runner_docker_image }}' \
+    --name '{{ install_gitlab_runner_name }}' \
+    --docker-pull-policy always 
+    --docker-privileged {{ install_gitlab_runner_docker_privileged | lower }}
+    --config /etc/gitlab-runner/config.toml
+
+- name: "Post-fix altered config: concurrent"
+  ansible.builtin.replace:
+    path: "/var/lib/docker/volumes/{{ install_gitlab_runner_name }}/_data/config.toml"
+    regexp: "concurrent *= *\\d+"
+    replace: "concurrent = {{ install_gitlab_runner_concurrent }}"
+
+- name: "Post-fix altered config: concurrent"
+  ansible.builtin.replace:
+    path: "/var/lib/docker/volumes/{{ install_gitlab_runner_name }}/_data/config.toml"
+    regexp: "session_timeout *= *\\d+"
+    replace: "session_timeout = {{ install_gitlab_runner_session_timeout }}"
+
+- name: "Restart runner"
+  register: output
+  changed_when: ouput.rc != 0
+  ansible.builtin.command: "docker restart {{ install_gitlab_runner_name }}"
