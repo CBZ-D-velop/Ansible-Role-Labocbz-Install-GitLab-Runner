@@ -163,25 +163,22 @@ inv_install_gitlab_runner_network_mode: "host"
 To run this role, you can copy the molecule/default/converge.yml playbook and add it into your playbook:
 
 ```YAML
-- name: "Include labocbz.install_gitlab_runner"
-    tags:
-    - "labocbz.install_gitlab_runner"
-    vars:
-    install_gitlab_runner_concurrent: "{{ inv_install_gitlab_runner_concurrent }}"
-    install_gitlab_runner_check_interval: "{{ inv_install_gitlab_runner_check_interval }}"
-    install_gitlab_runner_session_timeout: "{{ inv_install_gitlab_runner_session_timeout }}"
-    install_gitlab_runner_image: "{{ inv_install_gitlab_runner_image }}"
-    install_gitlab_runner_name: "{{ inv_install_gitlab_runner_name }}"
-    install_gitlab_runner_url: "{{ inv_install_gitlab_runner_url }}"
-    install_gitlab_runner_token: "{{ inv_install_gitlab_runner_token }}"
-    install_gitlab_runner_config_volume: "{{ inv_install_gitlab_runner_config_volume }}"
-    install_gitlab_runner_docker_tls_verify: "{{ inv_install_gitlab_runner_docker_tls_verify }}"
-    install_gitlab_runner_docker_image: "{{ inv_install_gitlab_runner_docker_image }}"
-    install_gitlab_runner_docker_privileged: "{{ inv_install_gitlab_runner_docker_privileged }}"
-    install_gitlab_runner_docker_disable_cache: "{{ inv_install_gitlab_runner_docker_disable_cache }}"
-    install_gitlab_runner_network_mode: "{{ inv_install_gitlab_runner_network_mode }}"
-    ansible.builtin.include_role:
-    name: "labocbz.install_gitlab_runner"
+    - name: "Include labocbz.install_gitlab_runner"
+      tags:
+        - "labocbz.install_gitlab_runner"
+      vars:
+        install_gitlab_runner_concurrent: "{{ inv_install_gitlab_runner_concurrent }}"
+        install_gitlab_runner_session_timeout: "{{ inv_install_gitlab_runner_session_timeout }}"
+        install_gitlab_runner_image: "{{ inv_install_gitlab_runner_image }}"
+        install_gitlab_runner_name: "{{ inv_install_gitlab_runner_name }}"
+        install_gitlab_runner_url: "{{ inv_install_gitlab_runner_url }}"
+        install_gitlab_runner_token: "{{ inv_install_gitlab_runner_token }}"
+        install_gitlab_runner_config_volume: "{{ inv_install_gitlab_runner_config_volume }}"
+        install_gitlab_runner_docker_tls_verify: "{{ inv_install_gitlab_runner_docker_tls_verify }}"
+        install_gitlab_runner_docker_image: "{{ inv_install_gitlab_runner_docker_image }}"
+      ansible.builtin.include_role:
+        name: "labocbz.install_gitlab_runner"
+
 ```
 
 ## Architectural Decisions Records
@@ -196,6 +193,11 @@ Here you can put your change to keep a trace of your work and decisions.
 * You have to provide an access token to the role and an URL for GitLab
 * TLS verification can be removed, so you can use your GitLab instance on premise
 
+### 2023-09-28: Registration
+
+* Registration is done by command
+* No config.toml because GitLab have changed their process
+
 ## Authors
 
 * Lord Robin Crombez
@@ -206,3 +208,4 @@ Here you can put your change to keep a trace of your work and decisions.
 * [Ansible Molecule documentation](https://molecule.readthedocs.io/)
 * [Run GitLab Runner in a container](https://docs.gitlab.com/runner/install/docker.html)
 * [Docker executor](https://docs.gitlab.com/runner/executors/docker.html)
+* [gitlab-runner register should allow to define concurrent value](https://gitlab.com/gitlab-org/gitlab-runner/-/issues/1539)
