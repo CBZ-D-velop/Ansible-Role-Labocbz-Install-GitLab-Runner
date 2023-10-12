@@ -16,6 +16,8 @@
       - "{{ install_gitlab_runner_config_volume }}:/etc/gitlab-runner"
 
 - name: "Register runner {{ install_gitlab_runner_name }}"
+  register: output
+  changed_when: output.rc != 0
   ansible.builtin.shell: >
     docker exec -i {{ install_gitlab_runner_name }} gitlab-runner register \
     --non-interactive \
@@ -42,5 +44,5 @@
 
 - name: "Restart runner"
   register: output
-  changed_when: ouput.rc != 0
+  changed_when: output.rc != 0
   ansible.builtin.command: "docker restart {{ install_gitlab_runner_name }}"

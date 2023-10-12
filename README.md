@@ -108,7 +108,6 @@ Some vars a required to run this role:
 ```YAML
 ---
 install_gitlab_runner_concurrent: 5
-install_gitlab_runner_check_interval: 0
 install_gitlab_runner_session_timeout: 1800
 install_gitlab_runner_image: "gitlab/gitlab-runner:latest"
 install_gitlab_runner_name: "gitlab-runners"
@@ -116,12 +115,8 @@ install_gitlab_runner_url: "https://gitlab.com/"
 install_gitlab_runner_token: "XXXXXXX"
 
 install_gitlab_runner_config_volume: "{{ install_gitlab_runner_name }}"
-
-install_gitlab_runner_docker_tls_verify: false
 install_gitlab_runner_docker_image: "debian:11"
-install_gitlab_runner_docker_privileged: true
-install_gitlab_runner_docker_disable_cache: true
-install_gitlab_runner_network_mode: "host"
+
 
 ```
 
@@ -135,7 +130,6 @@ In order to surchage vars, you have multiples possibilities but for mains cases 
 # From inventory
 ---
 inv_install_gitlab_runner_concurrent: 5
-inv_install_gitlab_runner_check_interval: 0
 inv_install_gitlab_runner_session_timeout: 1800
 inv_install_gitlab_runner_image: "gitlab/gitlab-runner:latest"
 inv_install_gitlab_runner_name: "gitlab-runners"
@@ -143,12 +137,8 @@ inv_install_gitlab_runner_url: "https://gitlab.com/"
 inv_install_gitlab_runner_token: "XXXXXXX"
 
 inv_install_gitlab_runner_config_volume: "{{ inv_install_gitlab_runner_name }}"
-
-inv_install_gitlab_runner_docker_tls_verify: false
 inv_install_gitlab_runner_docker_image: "debian:11"
-inv_install_gitlab_runner_docker_privileged: true
-inv_install_gitlab_runner_docker_disable_cache: true
-inv_install_gitlab_runner_network_mode: "host"
+
 
 ```
 
@@ -163,22 +153,44 @@ inv_install_gitlab_runner_network_mode: "host"
 To run this role, you can copy the molecule/default/converge.yml playbook and add it into your playbook:
 
 ```YAML
-    - name: "Include labocbz.install_gitlab_runner"
-      tags:
-        - "labocbz.install_gitlab_runner"
-      vars:
-        install_gitlab_runner_concurrent: "{{ inv_install_gitlab_runner_concurrent }}"
-        install_gitlab_runner_session_timeout: "{{ inv_install_gitlab_runner_session_timeout }}"
-        install_gitlab_runner_image: "{{ inv_install_gitlab_runner_image }}"
-        install_gitlab_runner_name: "{{ inv_install_gitlab_runner_name }}"
-        install_gitlab_runner_url: "{{ inv_install_gitlab_runner_url }}"
-        install_gitlab_runner_token: "{{ inv_install_gitlab_runner_token }}"
-        install_gitlab_runner_config_volume: "{{ inv_install_gitlab_runner_config_volume }}"
-        install_gitlab_runner_docker_tls_verify: "{{ inv_install_gitlab_runner_docker_tls_verify }}"
-        install_gitlab_runner_docker_image: "{{ inv_install_gitlab_runner_docker_image }}"
-      ansible.builtin.include_role:
-        name: "labocbz.install_gitlab_runner"
+- name: "Include labocbz.install_gitlab_runner"
+  tags:
+    - "labocbz.install_gitlab_runner"
+  vars:
+    install_gitlab_runner_concurrent: "{{ inv_install_gitlab_runner_concurrent }}"
+    install_gitlab_runner_session_timeout: "{{ inv_install_gitlab_runner_session_timeout }}"
+    install_gitlab_runner_image: "{{ inv_install_gitlab_runner_image }}"
+    install_gitlab_runner_name: "{{ inv_install_gitlab_runner_name }}"
+    install_gitlab_runner_url: "{{ inv_install_gitlab_runner_url }}"
+    install_gitlab_runner_token: "{{ inv_install_gitlab_runner_token }}"
+    install_gitlab_runner_config_volume: "{{ inv_install_gitlab_runner_config_volume }}"
+    install_gitlab_runner_docker_tls_verify: "{{ inv_install_gitlab_runner_docker_tls_verify }}"
+    install_gitlab_runner_docker_image: "{{ inv_install_gitlab_runner_docker_image }}"
+  ansible.builtin.include_role:
+    name: "labocbz.install_gitlab_runner"
 
+```
+
+After the run and the registration, you can modify the config.toml file and add some specific configuration. For example this is some configuration to make the runner able to do Docker in Docker.
+
+```TOML
+  [runners.cache]
+    MaxUploadedArchiveSize = 0
+  [runners.docker]
+    tls_verify = false
+    image = "alpine:3.18"
+    privileged = true
+    disable_entrypoint_overwrite = false
+    oom_kill_disable = false
+    disable_cache = false
+    pull_policy = ["always","if-not-present"]
+    shm_size = 0
+    volumes = ["/cache", "/var/run/docker.sock:/var/run/docker.sock", "/sys/fs/cgroup:/sys/fs/cgroup:rw", "/var/lib/containerd"]
+    network_mode = "host"
+  [runners.docker.services_tmpfs]
+    "/run" = "rw"
+    "/run/lock" = "rw"
+    "/tmp" = "rw"
 ```
 
 ## Architectural Decisions Records
