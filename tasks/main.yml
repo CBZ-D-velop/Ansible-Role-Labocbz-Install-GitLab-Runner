@@ -42,5 +42,5 @@
 
 - name: "Restart runner"
   register: output
-  changed_when: ouput.rc != 0
+  changed_when: output.rc != 0
   ansible.builtin.command: "docker restart {{ install_gitlab_runner_name }}"

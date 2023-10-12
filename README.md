@@ -108,7 +108,6 @@ Some vars a required to run this role:
 ```YAML
 ---
 install_gitlab_runner_concurrent: 5
-install_gitlab_runner_check_interval: 0
 install_gitlab_runner_session_timeout: 1800
 install_gitlab_runner_image: "gitlab/gitlab-runner:latest"
 install_gitlab_runner_name: "gitlab-runners"
@@ -116,12 +115,8 @@ install_gitlab_runner_url: "https://gitlab.com/"
 install_gitlab_runner_token: "XXXXXXX"
 
 install_gitlab_runner_config_volume: "{{ install_gitlab_runner_name }}"
-
-install_gitlab_runner_docker_tls_verify: false
 install_gitlab_runner_docker_image: "debian:11"
-install_gitlab_runner_docker_privileged: true
-install_gitlab_runner_docker_disable_cache: true
-install_gitlab_runner_network_mode: "host"
+
 
 ```
 
@@ -135,7 +130,6 @@ In order to surchage vars, you have multiples possibilities but for mains cases 
 # From inventory
 ---
 inv_install_gitlab_runner_concurrent: 5
-inv_install_gitlab_runner_check_interval: 0
 inv_install_gitlab_runner_session_timeout: 1800
 inv_install_gitlab_runner_image: "gitlab/gitlab-runner:latest"
 inv_install_gitlab_runner_name: "gitlab-runners"
@@ -143,12 +137,8 @@ inv_install_gitlab_runner_url: "https://gitlab.com/"
 inv_install_gitlab_runner_token: "XXXXXXX"
 
 inv_install_gitlab_runner_config_volume: "{{ inv_install_gitlab_runner_name }}"
-
-inv_install_gitlab_runner_docker_tls_verify: false
 inv_install_gitlab_runner_docker_image: "debian:11"
-inv_install_gitlab_runner_docker_privileged: true
-inv_install_gitlab_runner_docker_disable_cache: true
-inv_install_gitlab_runner_network_mode: "host"
+
 
 ```
 
@@ -163,21 +153,21 @@ inv_install_gitlab_runner_network_mode: "host"
 To run this role, you can copy the molecule/default/converge.yml playbook and add it into your playbook:
 
 ```YAML
-    - name: "Include labocbz.install_gitlab_runner"
-      tags:
-        - "labocbz.install_gitlab_runner"
-      vars:
-        install_gitlab_runner_concurrent: "{{ inv_install_gitlab_runner_concurrent }}"
-        install_gitlab_runner_session_timeout: "{{ inv_install_gitlab_runner_session_timeout }}"
-        install_gitlab_runner_image: "{{ inv_install_gitlab_runner_image }}"
-        install_gitlab_runner_name: "{{ inv_install_gitlab_runner_name }}"
-        install_gitlab_runner_url: "{{ inv_install_gitlab_runner_url }}"
-        install_gitlab_runner_token: "{{ inv_install_gitlab_runner_token }}"
-        install_gitlab_runner_config_volume: "{{ inv_install_gitlab_runner_config_volume }}"
-        install_gitlab_runner_docker_tls_verify: "{{ inv_install_gitlab_runner_docker_tls_verify }}"
-        install_gitlab_runner_docker_image: "{{ inv_install_gitlab_runner_docker_image }}"
-      ansible.builtin.include_role:
-        name: "labocbz.install_gitlab_runner"
+- name: "Include labocbz.install_gitlab_runner"
+  tags:
+    - "labocbz.install_gitlab_runner"
+  vars:
+    install_gitlab_runner_concurrent: "{{ inv_install_gitlab_runner_concurrent }}"
+    install_gitlab_runner_session_timeout: "{{ inv_install_gitlab_runner_session_timeout }}"
+    install_gitlab_runner_image: "{{ inv_install_gitlab_runner_image }}"
+    install_gitlab_runner_name: "{{ inv_install_gitlab_runner_name }}"
+    install_gitlab_runner_url: "{{ inv_install_gitlab_runner_url }}"
+    install_gitlab_runner_token: "{{ inv_install_gitlab_runner_token }}"
+    install_gitlab_runner_config_volume: "{{ inv_install_gitlab_runner_config_volume }}"
+    install_gitlab_runner_docker_tls_verify: "{{ inv_install_gitlab_runner_docker_tls_verify }}"
+    install_gitlab_runner_docker_image: "{{ inv_install_gitlab_runner_docker_image }}"
+  ansible.builtin.include_role:
+    name: "labocbz.install_gitlab_runner"
 
 ```
 
@@ -197,13 +187,6 @@ Here you can put your change to keep a trace of your work and decisions.
 
 * Registration is done by command
 * No config.toml because GitLab have changed their process
-
-### 2023-10-06: New CICD, new Images
-
-* New CI/CD scenario name
-* Molecule now use remote Docker image by Lord Robin Crombez
-* Molecule now use custom Docker image in CI/CD by env vars
-* New CICD with needs and optimization
 
 ## Authors
 
