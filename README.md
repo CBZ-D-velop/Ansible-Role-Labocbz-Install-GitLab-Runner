@@ -171,6 +171,28 @@ To run this role, you can copy the molecule/default/converge.yml playbook and ad
 
 ```
 
+After the run and the registration, you can modify the config.toml file and add some specific configuration. For example this is some configuration to make the runner able to do Docker in Docker.
+
+```TOML
+  [runners.cache]
+    MaxUploadedArchiveSize = 0
+  [runners.docker]
+    tls_verify = false
+    image = "alpine:3.18"
+    privileged = true
+    disable_entrypoint_overwrite = false
+    oom_kill_disable = false
+    disable_cache = false
+    pull_policy = ["always","if-not-present"]
+    shm_size = 0
+    volumes = ["/cache", "/var/run/docker.sock:/var/run/docker.sock", "/sys/fs/cgroup:/sys/fs/cgroup:rw", "/var/lib/containerd"]
+    network_mode = "host"
+  [runners.docker.services_tmpfs]
+    "/run" = "rw"
+    "/run/lock" = "rw"
+    "/tmp" = "rw"
+```
+
 ## Architectural Decisions Records
 
 Here you can put your change to keep a trace of your work and decisions.
