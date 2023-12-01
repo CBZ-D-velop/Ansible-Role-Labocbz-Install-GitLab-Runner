@@ -36,7 +36,7 @@
     regexp: "concurrent *= *\\d+"
     replace: "concurrent = {{ install_gitlab_runner_concurrent }}"
 
-- name: "Post-fix altered config: concurrent"
+- name: "Post-fix altered config: timeout"
   ansible.builtin.replace:
     path: "/var/lib/docker/volumes/{{ install_gitlab_runner_name }}/_data/config.toml"
     regexp: "session_timeout *= *\\d+"
