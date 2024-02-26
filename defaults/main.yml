@@ -1,10 +1,13 @@
 ---
-install_gitlab_runner_concurrent: 5
-install_gitlab_runner_session_timeout: 1800
-install_gitlab_runner_image: "gitlab/gitlab-runner:latest"
-install_gitlab_runner_name: "gitlab-runners"
-install_gitlab_runner_url: "https://gitlab.com/"
-install_gitlab_runner_token: "XXXXXXX"
+install_gitlab_runner__concurrent: 5
+install_gitlab_runner__session_timeout: 1800
+install_gitlab_runner__image: "gitlab/gitlab-runner:latest"
+install_gitlab_runner__name: "gitlab-runners"
+install_gitlab_runner__url: "https://gitlab.com/"
+install_gitlab_runner__token: "XXXXXXX"
+install_gitlab_runner__force_register: false
+install_gitlab_runner__docker_privileged: true
 
-install_gitlab_runner_config_volume: "{{ install_gitlab_runner_name }}"
-install_gitlab_runner_docker_image: "debian:11"
+install_gitlab_runner__config_volume: "{{ install_gitlab_runner__name }}"
+install_gitlab_runner__docker_image: "debian:11"
+install_gitlab_runner__pull_policy: "if-not-present"

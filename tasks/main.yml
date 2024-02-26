@@ -1,48 +1,72 @@
 ---
 - name: "Create Runner Config volume"
   community.docker.docker_volume:
-    name: "{{ install_gitlab_runner_config_volume }}"
+    name: "{{ install_gitlab_runner__config_volume }}"
     state: "present"
 
 - name: "Install GitLab Runner"
+  register: docker_created
   community.docker.docker_container:
-    name: "{{ install_gitlab_runner_name }}"
-    image: "{{ install_gitlab_runner_image }}"
+    name: "{{ install_gitlab_runner__name }}"
+    image: "{{ install_gitlab_runner__image }}"
     state: "started"
     recreate: false
     restart_policy: "always"
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock"
-      - "{{ install_gitlab_runner_config_volume }}:/etc/gitlab-runner"
+      - "{{ install_gitlab_runner__config_volume }}:/etc/gitlab-runner"
 
-- name: "Register runner {{ install_gitlab_runner_name }}"
+- name: "Register runner {{ install_gitlab_runner__name }}"
   register: output
   changed_when: output.rc != 0
-  ansible.builtin.shell: >
-    docker exec -i {{ install_gitlab_runner_name }} gitlab-runner register \
+  when: ((docker_created.changed | default(false)) or ( install_gitlab_runner__force_register | default(false)))
+  ansible.builtin.command: >
+    docker exec -i {{ install_gitlab_runner__name }} gitlab-runner register \
     --non-interactive \
-    --url '{{ install_gitlab_runner_url }}' \
-    --registration-token '{{ install_gitlab_runner_token }}' \
+    --url '{{ install_gitlab_runner__url }}' \
+    --registration-token '{{ install_gitlab_runner__token }}' \
     --executor 'docker' \
-    --docker-image '{{ install_gitlab_runner_docker_image }}' \
-    --name '{{ install_gitlab_runner_name }}' \
+    --docker-image '{{ install_gitlab_runner__docker_image }}' \
+    --name '{{ install_gitlab_runner__name }}' \
     --docker-pull-policy always 
-    --docker-privileged {{ install_gitlab_runner_docker_privileged | lower }}
+    --docker-privileged {{ install_gitlab_runner__docker_privileged | lower }}
     --config /etc/gitlab-runner/config.toml
 
-- name: "Post-fix altered config: concurrent"
-  ansible.builtin.replace:
-    path: "/var/lib/docker/volumes/{{ install_gitlab_runner_name }}/_data/config.toml"
-    regexp: "concurrent *= *\\d+"
-    replace: "concurrent = {{ install_gitlab_runner_concurrent }}"
+- name: "Handle runner configuration"
+  block:
+    - name: Extract id from TOML config
+      register: id_result
+      changed_when: false
+      ansible.builtin.shell: |
+        set -o pipefail
+        cat /var/lib/docker/volumes/{{ install_gitlab_runner__config_volume }}/_data/config.toml | grep 'id =' | awk -F' ' '{print $3}'
 
-- name: "Post-fix altered config: timeout"
-  ansible.builtin.replace:
-    path: "/var/lib/docker/volumes/{{ install_gitlab_runner_name }}/_data/config.toml"
-    regexp: "session_timeout *= *\\d+"
-    replace: "session_timeout = {{ install_gitlab_runner_session_timeout }}"
+    - name: Extract token_obtained_at from TOML config
+      register: token_obtained_at_result
+      changed_when: false
+      ansible.builtin.shell: |
+        set -o pipefail
+        cat /var/lib/docker/volumes/{{ install_gitlab_runner__config_volume }}/_data/config.toml | grep 'token_obtained_at =' | awk -F' ' '{print $3}'
 
-- name: "Restart runner"
-  register: output
-  changed_when: output.rc != 0
-  ansible.builtin.command: "docker restart {{ install_gitlab_runner_name }}"
+    - name: Extract token_expires_at from TOML config
+      register: token_expires_at_result
+      changed_when: false
+      ansible.builtin.shell: |
+        set -o pipefail
+        cat /var/lib/docker/volumes/{{ install_gitlab_runner__config_volume }}/_data/config.toml | grep 'token_expires_at =' | awk -F' ' '{print $3}'
+
+    - name: Extract token from TOML config
+      register: token_result
+      changed_when: false
+      ansible.builtin.shell: |
+        set -o pipefail
+        cat /var/lib/docker/volumes/{{ install_gitlab_runner__config_volume }}/_data/config.toml | grep 'token =' | awk -F' ' '{print $3}'
+
+    - name: "Import TOML configuration for the runner"
+      notify: "Restart runner"
+      ansible.builtin.template:
+        src: "templates/config.toml.j2"
+        dest: "/var/lib/docker/volumes/{{ install_gitlab_runner__config_volume }}/_data/config.toml"
+        owner: "root"
+        group: "root"
+        mode: "0700"
