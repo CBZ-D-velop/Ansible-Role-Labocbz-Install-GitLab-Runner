@@ -37,30 +37,38 @@
     - name: Extract id from TOML config
       register: id_result
       changed_when: false
-      ansible.builtin.shell: |
-        set -o pipefail
-        cat /var/lib/docker/volumes/{{ install_gitlab_runner__config_volume }}/_data/config.toml | grep 'id =' | awk -F' ' '{print $3}'
+      ansible.builtin.shell:
+        cmd: |
+          set -o pipefail
+          cat /var/lib/docker/volumes/{{ install_gitlab_runner__config_volume }}/_data/config.toml | grep 'id =' | awk -F' ' '{print $3}'
+        executable: /bin/bash
 
     - name: Extract token_obtained_at from TOML config
       register: token_obtained_at_result
       changed_when: false
-      ansible.builtin.shell: |
-        set -o pipefail
-        cat /var/lib/docker/volumes/{{ install_gitlab_runner__config_volume }}/_data/config.toml | grep 'token_obtained_at =' | awk -F' ' '{print $3}'
+      ansible.builtin.shell:
+        cmd: |
+          set -o pipefail
+          cat /var/lib/docker/volumes/{{ install_gitlab_runner__config_volume }}/_data/config.toml | grep 'token_obtained_at =' | awk -F' ' '{print $3}'
+        executable: /bin/bash
 
     - name: Extract token_expires_at from TOML config
       register: token_expires_at_result
       changed_when: false
-      ansible.builtin.shell: |
-        set -o pipefail
-        cat /var/lib/docker/volumes/{{ install_gitlab_runner__config_volume }}/_data/config.toml | grep 'token_expires_at =' | awk -F' ' '{print $3}'
+      ansible.builtin.shell:
+        cmd: |
+          set -o pipefail
+          cat /var/lib/docker/volumes/{{ install_gitlab_runner__config_volume }}/_data/config.toml | grep 'token_expires_at =' | awk -F' ' '{print $3}'
+        executable: /bin/bash
 
     - name: Extract token from TOML config
       register: token_result
       changed_when: false
-      ansible.builtin.shell: |
-        set -o pipefail
-        cat /var/lib/docker/volumes/{{ install_gitlab_runner__config_volume }}/_data/config.toml | grep 'token =' | awk -F' ' '{print $3}'
+      ansible.builtin.shell:
+        cmd: |
+          set -o pipefail
+          cat /var/lib/docker/volumes/{{ install_gitlab_runner__config_volume }}/_data/config.toml | grep 'token =' | awk -F' ' '{print $3}'
+        executable: /bin/bash
 
     - name: "Import TOML configuration for the runner"
       notify: "Restart runner"
