@@ -115,9 +115,8 @@ lint:markdown:
 #  rules:
 #    - if: '$CI_COMMIT_MESSAGE=~/^[^Merge]/ && $CI_COMMIT_BRANCH == "develop"'
 
-molecule:test_docker_dind:
+molecule:test-docker-dind:
   <<: *molecule_test
-  allow_failure: true #because TOKEN removed
   variables:
     SCENARIO: "cicd-docker-dind"
   rules:
