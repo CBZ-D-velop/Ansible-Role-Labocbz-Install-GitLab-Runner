@@ -24,7 +24,7 @@
     docker exec -i {{ install_gitlab_runner__name }} gitlab-runner register \
     --non-interactive \
     --url '{{ install_gitlab_runner__url }}' \
-    --registration-token '{{ install_gitlab_runner__token }}' \
+    --token '{{ install_gitlab_runner__token }}' \
     --executor 'docker' \
     --docker-image '{{ install_gitlab_runner__docker_image }}' \
     --name '{{ install_gitlab_runner__name }}' \
